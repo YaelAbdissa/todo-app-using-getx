@@ -13,11 +13,30 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Getx Todo List"),
       ),
-      body: Container(
-        child: Obx(
-          () => ListView.separated(
-            itemBuilder: (context, index) {
-              return ListTile(
+      body: Obx(
+        () => ListView.separated(
+          itemBuilder: (context, index) {
+            return Dismissible(
+              key: Key(index.toString()),
+              direction: DismissDirection.endToStart,
+              onDismissed: (dirction) {
+                var removed = todoController.todos[index];
+                todoController.todos.removeAt(index);
+                Get.snackbar(
+                  "Task removed",
+                  "The task $removed was successfully removed.",
+                  mainButton: TextButton(
+                    onPressed: () {
+                      todoController.todos.insert(index, removed);
+                      if (Get.isSnackbarOpen == true) {
+                        Get.back();
+                      }
+                    },
+                    child: Text("Undo"),
+                  ),
+                );
+              },
+              child: ListTile(
                 title: Text(
                   todoController.todos[index].text,
                   style: todoController.todos[index].done
@@ -48,13 +67,13 @@ class HomeScreen extends StatelessWidget {
                 trailing: todoController.todos[index].done
                     ? null
                     : Icon(Icons.chevron_right),
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Divider();
-            },
-            itemCount: todoController.todos.length,
-          ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) {
+            return Divider();
+          },
+          itemCount: todoController.todos.length,
         ),
       ),
       floatingActionButton: FloatingActionButton(
